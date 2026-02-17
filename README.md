@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Student App
+
+A Next.js application with Prisma ORM and PostgreSQL.
+
+## Prerequisites
+
+- [Docker](https://www.docker.com/) installed and running
+- [Node.js](https://nodejs.org/) (v20+)
+- [pnpm](https://pnpm.io/)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+```
+
+### 2. Start the database
+
+```bash
+docker compose up -d
+```
+
+This starts a PostgreSQL container (`db`) on `localhost:5432` with:
+
+| Setting  | Value      |
+| -------- | ---------- |
+| User     | `postgres` |
+| Password | `postgres` |
+| Database | `student`  |
+
+### 3. Run database migrations
+
+```bash
+npx prisma migrate dev
+```
+
+### 4. Seed 10 sample students
+
+```bash
+pnpm seed
+```
+
+This inserts the following students into the database:
+
+| Name           | Email               |
+| -------------- | ------------------- |
+| Alice Johnson  | alice@example.com   |
+| Bob Smith      | bob@example.com     |
+| Charlie Brown  | charlie@example.com |
+| Diana Prince   | diana@example.com   |
+| Edward Norton  | edward@example.com  |
+| Fiona Green    | fiona@example.com   |
+| George Wilson  | george@example.com  |
+| Hannah Lee     | hannah@example.com  |
+| Ivan Petrov    | ivan@example.com    |
+| Julia Chen     | julia@example.com   |
+
+The seed script uses `upsert`, so it is safe to run multiple times without creating duplicates.
+
+### 5. Start the dev server
+
+```bash
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Useful Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command                    | Description                    |
+| -------------------------- | ------------------------------ |
+| `docker compose up -d`     | Start PostgreSQL               |
+| `docker compose down`      | Stop PostgreSQL                |
+| `npx prisma migrate dev`   | Run migrations                 |
+| `npx prisma studio`        | Open Prisma Studio (DB viewer) |
+| `pnpm seed`                | Seed 10 sample students        |
+| `pnpm dev`                 | Start Next.js dev server       |
