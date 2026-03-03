@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useActionState, useState } from "react";
 import { saveStudent, deleteStudent } from "@/app/actions/student";
 import type { ActionResult } from "@/app/actions/student";
 
@@ -14,21 +14,28 @@ export default function StudentDetail({ students }: { students: Student[] }) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState<ActionResult["errors"]>();
-  const [isPending, startTransition] = useTransition();
 
   const resetForm = () => {
     setName("");
     setEmail("");
     setEditingId(null);
-    setErrors(undefined);
   };
+
+  const [state, formAction, isPending] = useActionState(
+    async (prev: ActionResult, formData: FormData) => {
+      const result = await saveStudent(prev, formData);
+      if (result.success) {
+        resetForm();
+      }
+      return result;
+    },
+    {} as ActionResult
+  );
 
   const handleEdit = (student: Student) => {
     setName(student.name);
     setEmail(student.email);
     setEditingId(student.id);
-    setErrors(undefined);
   };
 
   const handleDelete = async (id: number) => {
@@ -40,23 +47,13 @@ export default function StudentDetail({ students }: { students: Student[] }) {
     <>
       {/* Form */}
       <form
-        action={(formData) => {
-          if (editingId) formData.append("id", String(editingId));
-
-          startTransition(async () => {
-            const result = await saveStudent({}, formData);
-            if (result.errors) {
-              setErrors(result.errors);
-            } else {
-              resetForm();
-            }
-          });
-        }}
+        action={formAction}
         className="mb-8 flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
       >
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
           {editingId ? "Edit Student" : "Add Student"}
         </h2>
+        {editingId && <input type="hidden" name="id" value={editingId} />}
         <div>
           <input
             type="text"
@@ -67,8 +64,8 @@ export default function StudentDetail({ students }: { students: Student[] }) {
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder-zinc-500"
             required
           />
-          {errors?.name && (
-            <p className="mt-1 text-xs text-red-500">{errors.name[0]}</p>
+          {state.errors?.name && (
+            <p className="mt-1 text-xs text-red-500">{state.errors.name[0]}</p>
           )}
         </div>
         <div>
@@ -81,8 +78,10 @@ export default function StudentDetail({ students }: { students: Student[] }) {
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder-zinc-500"
             required
           />
-          {errors?.email && (
-            <p className="mt-1 text-xs text-red-500">{errors.email[0]}</p>
+          {state.errors?.email && (
+            <p className="mt-1 text-xs text-red-500">
+              {state.errors.email[0]}
+            </p>
           )}
         </div>
         <div className="flex gap-2">

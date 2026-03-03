@@ -1,5 +1,6 @@
 import { prisma } from "@/app/lib/prisma";
 import StudentDetail from "@/app/components/StudentDetail";
+import L1_AddStudent from "./components/L1_AddStudent";
 
 export default async function Home() {
   const students = await prisma.student.findMany({
@@ -13,6 +14,7 @@ export default async function Home() {
           Students
         </h1>
         <StudentDetail students={students} />
+        <L1_AddStudent />
       </div>
     </div>
   );
